@@ -14,7 +14,7 @@ app.get("/", async (req, res) => {
 // CREATE POST
 app.post("/api/posts", async (req, res) => {
   console.log(req.body);
-  res.json({
+  res.status(200).json({
     status: "success",
     message: "I got the data",
   });
