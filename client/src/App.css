@@ -50,4 +50,54 @@ body {
   color: orange;
   border: none;
   border-radius: 0.5rem;
+  cursor: pointer;
+}
+.file__upload-btn {
+  display: block;
+  height: 3rem;
+  width: 30%;
+  color: orange;
+  background-color: white;
+  padding: 0.54rem 2rem;
+  border-radius: 0.4rem;
+  margin-bottom: 1rem;
+  font-family: 700;
+  font-size: 1.2rem;
+}
+.preview-container {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+.preview-img {
+  width: 10rem;
+  height: 10rem;
+  position: relative;
+}
+.cross-box {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(255, 255, 255, 0.144);
+  backdrop-filter: blur(1px) brightness(50%);
+  z-index: 10;
+  opacity: 0;
+}
+.preview-img > .cross-box:hover {
+  opacity: 1;
+}
+.cross-btn {
+  cursor: pointer;
+}
+.img {
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+}
+
+.hidden {
+  display: none;
 }

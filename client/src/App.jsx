@@ -3,36 +3,53 @@ import { useState } from "react";
 import axios from "axios";
 
 function App() {
-  const [title, setTitle] = useState("Mountain-honey");
-  const [cost, setCost] = useState(399);
-  const [quantity, setQuantity] = useState(10);
-  const [description, setDescription] = useState(
-    "Honey is a sweet fluid made by honeybees using the nectar of flowering plants. There are about 320 different varieties of honey, which vary in color, odor and flavor. Honey contains mostly sugar, as well as a mix of amino acids, vitamins, minerals, iron, zinc and antioxidants."
-  );
-  const [file, setFile] = useState();
+  const [title, setTitle] = useState("");
+  const [cost, setCost] = useState();
+  const [quantity, setQuantity] = useState();
+  const [description, setDescription] = useState("");
+  const [file, setFile] = useState([]);
+  const [preview, setPreview] = useState([]);
+  const [message, setMessage] = useState();
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const formData = new formData();
+    const formData = new FormData();
     formData.append("title", title);
     formData.append("cost", cost);
     formData.append("quantity", quantity);
     formData.append("description", description);
     formData.append("image", file);
+    // file.map((img) => formData.append("image", img));
     try {
-      await axios.post("localhost:3000/api/posts", formData, {
-        headers: {
-          "Content-type": "multipart/form-data",
-        },
-      });
+      const response = await axios.post(
+        "http://localhost:3000/api/posts",
+        formData,
+        {
+          headers: {
+            "Content-type": "multipart/form-data",
+          },
+        }
+      );
+      console.log(response);
+      setMessage(response);
     } catch (err) {
       console.log(err);
     }
   };
   const setSelectedFile = (e) => {
-    const file = e.target.files[0];
-    console.log(file);
-    setFile(file);
+    const selectedFile = Array.from(e.target.files);
+    const newUrl = selectedFile.map((ele) => URL.createObjectURL(ele));
+    console.log(e.target.files[0]);
+    setFile(e.target.files[0]);
+    setPreview(newUrl);
   };
+  const removeItem = (index) => {
+    const updatedPreview = preview.filter((_, i) => i !== index);
+    const updatedFile = file.filter((_, i) => i !== index);
+    URL.revokeObjectURL(preview[index]);
+    setPreview(updatedPreview);
+    setFile(updatedFile);
+  };
+  if (message !== undefined) console.log(message);
 
   return (
     <form className="import-box" onSubmit={handleSubmit}>
@@ -81,15 +98,38 @@ function App() {
           required
         />
       </div>
-      <input
-        type="file"
-        id="form__image-input"
-        className="file__input"
-        multiple={true}
-        onChange={setSelectedFile}
-        accept="image/*"
-      />
-      <button type="button" className="form_btn">
+      <div>
+        <input
+          type="file"
+          id="form__image-input"
+          className="file__input hidden"
+          // multiple={true}
+          onChange={setSelectedFile}
+          accept="image/*"
+        />
+        <label
+          htmlFor="form__image-input"
+          id="file__upload-btn"
+          className="file__upload-btn"
+        >
+          choose a file
+        </label>
+        <div className="preview-container">
+          {preview.map((img, index) => (
+            <div
+              key={index}
+              className="preview-img"
+              onClick={() => removeItem(index)}
+            >
+              <div className="cross-box">
+                <div className="cross-btn">❌</div>
+              </div>
+              <img src={img} alt="preview" className="img" />
+            </div>
+          ))}
+        </div>
+      </div>
+      <button type="submit" className="form_btn">
         submit
       </button>
     </form>
