@@ -10,26 +10,28 @@ const {
   PutObjectCommand,
   GetObjectCommand,
 } = require("@aws-sdk/client-s3");
+const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
+
 dotenv.config();
 
 //using the modules
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 const prisma = new PrismaClient();
-const whiteList = ["http://localhost:5173"];
+// const whiteList = ["http://localhost:5173", "http://localhost:3000/api/posts"];
 
-const corsOptions = {
-  origin: (origin, callBack) => {
-    if (whiteList.indexOf(origin) !== -1) {
-      callBack(null, true);
-    } else {
-      callBack(new Error("Not allowed by cors"));
-    }
-  },
-};
+// const corsOptions = {
+//   origin: (origin, callBack) => {
+//     if (whiteList.indexOf(origin) !== -1) {
+//       callBack(null, true);
+//     } else {
+//       callBack(new Error("Not allowed by cors"));
+//     }
+//   },
+// };
 //MIDDLE WARES
 app.use(express.json());
-app.use(cors(corsOptions));
+// app.use(cors(corsOptions));
 
 //env.file
 const bucketName = process.env.BUCKET_NAME;
@@ -50,6 +52,25 @@ app.get("/", async (req, res) => {
   res.json({
     status: "success",
     message: "server is running successfully",
+  });
+});
+app.get("/api/posts", async (req, res) => {
+  const posts = await prisma.product.findMany();
+  for (const ele of posts) {
+    const getObjectParams = {
+      Bucket: bucketName,
+      Key: ele.imageUrl,
+    };
+    const command = new GetObjectCommand(getObjectParams);
+    const url = await getSignedUrl(s3, command, { expiresIn: 3600 });
+    ele.imageUrl = url;
+  }
+  res.json({
+    status: "success",
+    results: posts.length,
+    data: {
+      posts,
+    },
   });
 });
 // CREATE POST
