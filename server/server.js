@@ -57,13 +57,7 @@ app.get("/", async (req, res) => {
 app.get("/api/products", async (req, res) => {
   const posts = await prisma.product.findMany();
   for (const ele of posts) {
-    const getObjectParams = {
-      Bucket: bucketName,
-      Key: ele.imageUrl,
-    };
-    const command = new GetObjectCommand(getObjectParams);
-    const url = await getSignedUrl(s3, command, { expiresIn: 3600 });
-    ele.imageUrl = url;
+    ele.imageUrl = "https://d1pn9nv3zrol6b.cloudfront.net/" + ele.imageUrl;
   }
   res.json({
     status: "success",
