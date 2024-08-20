@@ -18,20 +18,20 @@ dotenv.config();
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 const prisma = new PrismaClient();
-// const whiteList = ["http://localhost:5173", "http://localhost:3000/api/posts"];
+const whiteList = ["http://localhost:5173", "http://localhost:3000/api/posts"];
 
-// const corsOptions = {
-//   origin: (origin, callBack) => {
-//     if (whiteList.indexOf(origin) !== -1) {
-//       callBack(null, true);
-//     } else {
-//       callBack(new Error("Not allowed by cors"));
-//     }
-//   },
-// };
+const corsOptions = {
+  origin: (origin, callBack) => {
+    if (whiteList.indexOf(origin) !== -1) {
+      callBack(null, true);
+    } else {
+      callBack(new Error("Not allowed by cors"));
+    }
+  },
+};
 //MIDDLE WARES
 app.use(express.json());
-// app.use(cors(corsOptions));
+app.use(cors(corsOptions));
 
 //env.file
 const bucketName = process.env.BUCKET_NAME;
@@ -54,7 +54,7 @@ app.get("/", async (req, res) => {
     message: "server is running successfully",
   });
 });
-app.get("/api/posts", async (req, res) => {
+app.get("/api/products", async (req, res) => {
   const posts = await prisma.product.findMany();
   for (const ele of posts) {
     const getObjectParams = {
@@ -68,9 +68,7 @@ app.get("/api/posts", async (req, res) => {
   res.json({
     status: "success",
     results: posts.length,
-    data: {
-      posts,
-    },
+    data: posts,
   });
 });
 // CREATE POST
